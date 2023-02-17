@@ -9,17 +9,7 @@ function Square({ value, onSquareClick }) {
   return <button className="square" onClick={onSquareClick}>{value}</button>
 }
 
-export default function Board() {
-  // 現在のプレイヤーの先攻・後攻を表すフラグです。
-  // true = 先攻(X)の順序, false = 後攻(○)の順序 とする。
-  const [xIsNext, setIsNext] = useState(true);
-
-  // 9つの正方形に対応する、状態変数。
-  // 9個の配列にはそれぞれ'X', '○', null が入る想定となっている。
-  // .fill() とすることで配列の初期値を設定することができる。
-  // この変数でどの正方形にどの値が入っているかを判断できるようになった。
-  const [squares, setSquares] = useState(Array(9).fill(null));
-
+function Board({ xIsNext, squares, onPlay }) {
   // 引数で指定したマスの表示テキストを変更できるようにした。
   // これを呼び出そうとすると onSquareClick={handleClick(0)} と書けば良いように思うが、
   // 実際には想定したとおりには動かない。
@@ -52,10 +42,11 @@ export default function Board() {
       nextSquares[i] = '◯';
     }
 
-    setSquares(nextSquares);
+    onPlay(nextSquares);
+    // setSquares(nextSquares);
 
-    // レンダリング後に手順を変更することで先攻・後攻を切り替えている。
-    setIsNext(!xIsNext);
+    // // レンダリング後に手順を変更することで先攻・後攻を切り替えている。
+    // setIsNext(!xIsNext);
   }
 
   // 現在の状態をプレイヤーに知らせるための状態ラベルを定義する。
@@ -87,6 +78,32 @@ export default function Board() {
       </div>
     </>
   )
+}
+
+export default function Game(){
+  // 現在のプレイヤーの先攻・後攻を表すフラグです。
+  // true = 先攻(X)の順序, false = 後攻(○)の順序 とする。
+  const [xIsNext, setXIsNext] = useState(true);
+
+  const [history, setHistory] = useState([Array(9).fill(null)]);
+
+  const currentSquares = history[history.length - 1];
+
+  function handlePlay(nextSquares){
+    setHistory([...history, nextSquares]);
+    setXIsNext(!xIsNext);
+  }
+
+  return (
+    <div className='game'>
+      <div className='game-board'>
+        <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
+      </div>
+      <div className='game-info'>
+        <ol>{/* TODO */}</ol>
+      </div>
+    </div>
+  );
 }
 
 /**
