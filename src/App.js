@@ -80,36 +80,65 @@ function Board({ xIsNext, squares, onPlay }) {
   )
 }
 
-export default function Game(){
+export default function Game() {
   // 現在のプレイヤーの先攻・後攻を表すフラグです。
   // true = 先攻(X)の順序, false = 後攻(○)の順序 とする。
   const [xIsNext, setXIsNext] = useState(true);
 
   const [history, setHistory] = useState([Array(9).fill(null)]);
 
-  const currentSquares = history[history.length - 1];
+  // 現在表示しているステップの値です。
+  // 履歴を選択するとそのステップの状態を表示するために使用する。
+  const [currentMove, setCurrentMove] = useState(0);
 
-  function handlePlay(nextSquares){
-    setHistory([...history, nextSquares]);
+  const currentSquares = history[currentMove];
+
+  /**
+   * 正方形をクリックしたときのハンドラです。
+   * @param {Array} nextSquares 次にレンダリングする正方形の状態配列です。
+   */
+  function handlePlay(nextSquares) {
+    // 履歴を保持する。
+    // ...history.slice(0, currentMove + 1) によって、これまでの履歴の配列を定義している。
+    // ... は「スプレッド構文」と呼び、...<変数> とすることで、その変数を0個以上の値に展開することができる。
+    // つまり以下では、現時点の履歴配列に新規履歴（nextSquares）を加えることで
+    // あらたな履歴として更新しようとしている。
+    const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
+    setHistory(nextHistory);
+
+    setCurrentMove(nextHistory.length - 1)
     setXIsNext(!xIsNext);
   }
 
-  function jumpTo(nextMove){
-    // TODO
+  /**
+   * 指定したターン数にジャンプします。
+   * 特定の履歴番号へジャンプするために使います。
+   * @param {Any} nextMove 表示したいターン数を設定します。
+   */
+  function jumpTo(nextMove) {
+    setCurrentMove(nextMove);
+    setXIsNext(nextMove % 2 == 0);
   }
 
   // ボタンで履歴にジャンプするためのコンポーネントを作る。
   const moves = history.map((squares, move) => {
     let description;
-    if (move > 0){
+    if (move > 0) {
       description = 'Go to move #' + move;
     } else {
       description = 'Go to game start';
     }
     // button の UI で履歴の手順を示す。
     // このボタンを押下することでその手順の履歴にジャンプできるようになる。
+    // React ではリスト UI （=<ol><li>）を複数レンダリングする際に
+    // リスト項目の位置を覚えておく必要がある。
+    // 覚えておくための仕組みとして React では key という予約済みプロパティが存在する。
+    // key には同階層のリスト項目に対して一意である値を設定する。
+    // この key が割り振られることによって、リスト項目の増減、順序の変更に対応している。
+    // key が適切に設定されていない場合、以下のような警告が表示されてしまう。
+    // note: Warning: Each child in a list should have a unique "key" prop.
     return (
-      <li>
+      <li key={move}>
         <button onClick={() => jumpTo(move)}>{description}</button>
       </li>
     )
