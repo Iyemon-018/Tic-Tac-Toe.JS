@@ -94,13 +94,38 @@ export default function Game(){
     setXIsNext(!xIsNext);
   }
 
+  function jumpTo(nextMove){
+    // TODO
+  }
+
+  // ボタンで履歴にジャンプするためのコンポーネントを作る。
+  const moves = history.map((squares, move) => {
+    let description;
+    if (move > 0){
+      description = 'Go to move #' + move;
+    } else {
+      description = 'Go to game start';
+    }
+    // button の UI で履歴の手順を示す。
+    // このボタンを押下することでその手順の履歴にジャンプできるようになる。
+    return (
+      <li>
+        <button onClick={() => jumpTo(move)}>{description}</button>
+      </li>
+    )
+  });
+
+  // <ol> 要素には moves しかいないが、レンダリングされるたびに moves が呼ばれるため
+  // ターンが進むごとに <li><button>... が増えていく。
+  // マスをクリックすると再レンダリングされターンが進む。
+  // これを繰り返すことでボタンの数（履歴の数）が増えていくという仕組み。
   return (
     <div className='game'>
       <div className='game-board'>
         <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
       </div>
       <div className='game-info'>
-        <ol>{/* TODO */}</ol>
+        <ol>{moves}</ol>
       </div>
     </div>
   );
