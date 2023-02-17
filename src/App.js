@@ -81,15 +81,15 @@ function Board({ xIsNext, squares, onPlay }) {
 }
 
 export default function Game() {
-  // 現在のプレイヤーの先攻・後攻を表すフラグです。
-  // true = 先攻(X)の順序, false = 後攻(○)の順序 とする。
-  const [xIsNext, setXIsNext] = useState(true);
-
   const [history, setHistory] = useState([Array(9).fill(null)]);
 
   // 現在表示しているステップの値です。
   // 履歴を選択するとそのステップの状態を表示するために使用する。
   const [currentMove, setCurrentMove] = useState(0);
+
+  // 現在のプレイヤーの先攻・後攻を表すフラグです。
+  // true = 先攻(X)の順序, false = 後攻(○)の順序 とする。
+  const xIsNext = currentMove % 2;
 
   const currentSquares = history[currentMove];
 
@@ -106,8 +106,7 @@ export default function Game() {
     const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
     setHistory(nextHistory);
 
-    setCurrentMove(nextHistory.length - 1)
-    setXIsNext(!xIsNext);
+    setCurrentMove(nextHistory.length - 1);
   }
 
   /**
@@ -117,7 +116,6 @@ export default function Game() {
    */
   function jumpTo(nextMove) {
     setCurrentMove(nextMove);
-    setXIsNext(nextMove % 2 == 0);
   }
 
   // ボタンで履歴にジャンプするためのコンポーネントを作る。
