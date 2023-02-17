@@ -37,7 +37,7 @@ export default function Board() {
     // 初期状態＝どのプレイヤーもクリックしていない であれば選択可能とする。
     // 以下の分岐については null, undefined, 空文字, 0 以外の値が入っている場合、true となる。
     // つまり、このコンポーネントの仕様上"◯" or "X"が入っていれば true となる。
-    if (squares[i]) {
+    if (squares[i] || calculateWinner(squares)) {
       return;
     }
 
@@ -47,9 +47,9 @@ export default function Board() {
 
     // 現在の手順によってマークがかわる。
     if (xIsNext) {
-      nextSquares[i] = "X";
+      nextSquares[i] = 'X';
     } else {
-      nextSquares[i] = "◯";
+      nextSquares[i] = '◯';
     }
 
     setSquares(nextSquares);
@@ -58,8 +58,18 @@ export default function Board() {
     setIsNext(!xIsNext);
   }
 
+  // 現在の状態をプレイヤーに知らせるための状態ラベルを定義する。
+  const winner = calculateWinner(squares);
+  let status;
+  if (winner) {
+    status = 'Winner: ' + winner;
+  } else {
+    status = 'Next player: ' + (xIsNext ? 'X' : '◯');
+  }
+
   return (
     <>
+      <div className='status'>{status}</div>
       <div className="board-row">
         <Square value={squares[0]} onSquareClick={() => handleClick(0)} />
         <Square value={squares[1]} onSquareClick={() => handleClick(1)} />
@@ -77,4 +87,35 @@ export default function Board() {
       </div>
     </>
   )
+}
+
+/**
+ * 勝者が確定したかどうかを判定します。
+ * @param {Array} squares 正方形のマーク状態を表す配列を設定します。
+ * @returns 判定結果を返します。null の場合、ゲームは継続されます。勝者が確定している場合はそのプレイヤーのマーク文字列を返します。
+ */
+function calculateWinner(squares) {
+  // 正方形の配置で勝利が確定するマスのインデックスの組み合わせを定義する。
+  // 左上を0, 右下を8として2次元配列の組み合わせに一致する場合、勝利が確定する。
+  // 以下にはその勝利が確定するパターンを網羅している。
+  const lines = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6]
+  ];
+  for (let i = 0; i < lines.length; i++) {
+    const [a, b, c] = lines[i];
+    if (squares[a]
+      && squares[a] === squares[b]
+      && squares[a] === squares[c]) {
+      // 勝利が確定しているパターン
+      return squares[a];
+    }
+    return null;
+  }
 }
