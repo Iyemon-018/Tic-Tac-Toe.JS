@@ -10,6 +10,10 @@ function Square({ value, onSquareClick }) {
 }
 
 export default function Board() {
+  // 現在のプレイヤーの先攻・後攻を表すフラグです。
+  // true = 先攻(X)の順序, false = 後攻(○)の順序 とする。
+  const [xIsNext, setIsNext] = useState(true);
+
   // 9つの正方形に対応する、状態変数。
   // 9個の配列にはそれぞれ'X', '○', null が入る想定となっている。
   // .fill() とすることで配列の初期値を設定することができる。
@@ -30,29 +34,46 @@ export default function Board() {
   // これは「アロー演算子」と呼び、C# でいうところのコールバックのようなものになる。
   // cf. https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Functions/Arrow_functions
   function handleClick(i) {
+    // 初期状態＝どのプレイヤーもクリックしていない であれば選択可能とする。
+    // 以下の分岐については null, undefined, 空文字, 0 以外の値が入っている場合、true となる。
+    // つまり、このコンポーネントの仕様上"◯" or "X"が入っていれば true となる。
+    if (squares[i]) {
+      return;
+    }
+
     // squares 配列のシャローコピーを作ってその先頭要素を"X"に変える。
     // コピーした配列を set して表示されている値を更新することで、左上隅の正方形に"X"を表示する。
     const nextSquares = squares.slice();
-    nextSquares[i] = "X";
+
+    // 現在の手順によってマークがかわる。
+    if (xIsNext) {
+      nextSquares[i] = "X";
+    } else {
+      nextSquares[i] = "◯";
+    }
+
     setSquares(nextSquares);
+
+    // レンダリング後に手順を変更することで先攻・後攻を切り替えている。
+    setIsNext(!xIsNext);
   }
 
   return (
     <>
       <div className="board-row">
-        <Square value={squares[0]} onSquareClick={ () => handleClick(0) } />
-        <Square value={squares[1]} onSquareClick={ () => handleClick(1) } />
-        <Square value={squares[2]} onSquareClick={ () => handleClick(2) } />
+        <Square value={squares[0]} onSquareClick={() => handleClick(0)} />
+        <Square value={squares[1]} onSquareClick={() => handleClick(1)} />
+        <Square value={squares[2]} onSquareClick={() => handleClick(2)} />
       </div>
       <div className="board-row">
-        <Square value={squares[3]} onSquareClick={ () => handleClick(3) } />
-        <Square value={squares[4]} onSquareClick={ () => handleClick(4) } />
-        <Square value={squares[5]} onSquareClick={ () => handleClick(5) } />
+        <Square value={squares[3]} onSquareClick={() => handleClick(3)} />
+        <Square value={squares[4]} onSquareClick={() => handleClick(4)} />
+        <Square value={squares[5]} onSquareClick={() => handleClick(5)} />
       </div>
       <div className="board-row">
-        <Square value={squares[6]} onSquareClick={ () => handleClick(6) } />
-        <Square value={squares[7]} onSquareClick={ () => handleClick(7) } />
-        <Square value={squares[8]} onSquareClick={ () => handleClick(8) } />
+        <Square value={squares[6]} onSquareClick={() => handleClick(6)} />
+        <Square value={squares[7]} onSquareClick={() => handleClick(7)} />
+        <Square value={squares[8]} onSquareClick={() => handleClick(8)} />
       </div>
     </>
   )
